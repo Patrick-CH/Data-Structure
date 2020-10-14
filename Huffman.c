@@ -12,6 +12,7 @@ typedef char **HuffmanCode;//动态分配数组储存赫夫曼编码表
 void ReadChar(int * w, int * pn, char * chars);
 void Select(HuffmanTree *HT, int n , int * s1, int * s2);
 void HuffmanCoding(HuffmanTree *HT, HuffmanCode *HC, int * w, int n);
+void HuffmanDecode(HuffmanTree HT, char * chars, int n);
 
 int main(){
     int n,i;
@@ -25,6 +26,7 @@ int main(){
     for(i=1; i<=n; i++){
         printf("%c HUFFMANCODE: %s\n",chars[i], HC[i]);
     }
+    HuffmanDecode(HT, chars, n);
     system("pause");
 }
 
@@ -51,7 +53,8 @@ void ReadChar(int * w, int * pn, char * chars){
         //printf("%s %d \n",buf,len - 1);
         for(i=0; i<len; i++){
             char c = buf[i];
-            *(wi+int(c)) += 1;
+            int index = c;
+            wi[index] += 1;
             printf("%c", c);
         }
     }
@@ -146,4 +149,64 @@ void Select(HuffmanTree *HT, int n , int * s1, int * s2){
     }
     *s1 = min;
     *s2 = min1;
+}
+
+/*
+解码
+*/
+void HuffmanDecode(HuffmanTree HT, char * chars, int n){
+    //读入文件
+    int m = 2*n - 1;
+    char buf[50];      /*缓冲区*/
+    FILE *fp;            /*文件指针*/
+    int len;             /*行字符个数*/
+    if((fp = fopen("D:\\file\\b.txt","r")) == NULL)
+    {
+        perror("fail to read");
+        exit (1);
+    }
+    while(fgets(buf,100,fp) != NULL)
+    {
+        len = strlen(buf);
+        buf[len] = '\0';  /*去掉换行符*/
+    }
+    printf("%s decoding...\n", buf);
+    buf[len] = '1';
+    buf[len+1] = '\0';
+    char w[20];
+    HTNode p = HT[m];
+    int i,j=0,index = m;
+    for (i=0; i<=len; i++){
+        char c = buf[i];
+        if(c=='0'){
+            if(index>=n){
+                index = p.lchirld;
+                p = HT[index];
+            } else
+            {
+                w[j] = chars[index];
+                j++;
+                p = HT[m];
+                index = m;
+                i--;
+            }
+        }else if(c=='1'){
+            if(index>=n){
+                index = p.rchirld;
+                p = HT[index];
+            } else
+            {
+                w[j] = chars[index];
+                j++;
+                p = HT[m];
+                index = m;
+                i--;
+            }
+        }
+        else{
+            printf("INPUT ERROR");
+        }
+    }
+    w[j] = '\0';
+    printf("decoded: %s\n", w);
 }
