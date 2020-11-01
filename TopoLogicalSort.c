@@ -5,6 +5,7 @@
 #define STACK_INIT_SIZE 100
 #define STACKINREASEMENT 10
 #define OVERFLOW -1
+#define _VEX_NUM_ 13 
 
 typedef struct{
     int From;
@@ -46,7 +47,7 @@ void TopoLogicalSort(Graphic G);
 
 int main(){
     Graphic * pG = (Graphic*)malloc(sizeof(Graphic));
-    GrapicCreate(pG, 12);//12为节点数量
+    GrapicCreate(pG, 14);//12为节点数量
     TopoLogicalSort(*pG);
     system("pause");
     return 0;
@@ -113,7 +114,7 @@ void GrapicCreate(Graphic* pG, int vexnum){
 void VNodeCreate(VNode* pv, int index){
     //读入         
     char s[20]; 
-    sprintf(s,"D:\\file\\%d.txt",index);
+    sprintf(s,"Topo\\%d.txt",index);
     char buf[50];      /*缓冲区*/
     FILE *fp;            /*文件指针*/
     int len = 0;             /*行字符个数*/
@@ -186,10 +187,12 @@ void  Indegree(int* indegree, Graphic G){
 
 //计算G的一个拓扑序列并输出
 void TopoLogicalSort(Graphic G){
-    int indegree[G.vexnum] = {0};
+    int indegree[_VEX_NUM_] = {0};
     Indegree(indegree, G);
     SqStack stack;
     InitStack(&stack);
+    SqStack stack1;
+    InitStack(&stack1);
     int i;
     for ( i = 0; i < G.vexnum; i++)
     {
@@ -197,16 +200,29 @@ void TopoLogicalSort(Graphic G){
         if(indegree[i] == 0) Push(&stack, i);
     }
     int cnt = 0;
-    while (!StackEmpty(stack))
+    int sm = 1;//sm代表学期
+    while ( !StackEmpty(stack)||!StackEmpty(stack1))
     {
-        int index = Pop(&stack);
-        printf("Node C%d\n", index+1);
-        cnt++;
-        ArcNode * p;
-        for(p = G.vertices[index].firstarc; p; p = p->nextarc){
-            int k = p->arcinfo.To;
-            indegree[k]--;
-            if(indegree[k]==0) Push(&stack, k);
+        int sub = 0;//sub为科目数，限制每学期最多2门课
+        printf("semester %d\n",sm);
+        while (!StackEmpty(stack)&&sub<2)
+        {
+            int index = Pop(&stack);
+            Push(&stack1, index);
+            printf("Node C%d\n", index+1);
+            cnt++;
+            sub++;
+        }
+        sm++;
+        while (!StackEmpty(stack1))
+        {   
+            int index = Pop(&stack1);
+            ArcNode * p;
+            for(p = G.vertices[index].firstarc; p; p = p->nextarc){
+                int k = p->arcinfo.To;
+                indegree[k]--;
+                if(indegree[k]==0) Push(&stack, k);
+            }
         }
     }
     if(cnt<G.vexnum) printf("Not AOV!");

@@ -40,7 +40,7 @@ void ReadChar(int * w, int * pn, char * chars){
     char buf[100];      /*缓冲区*/
     FILE *fp;            /*文件指针*/
     int len;             /*行字符个数*/
-    if((fp = fopen("D:\\file\\a.txt","r")) == NULL)
+    if((fp = fopen("huffman.txt","r")) == NULL)
     {
         perror("fail to read");
         exit (1);
@@ -160,7 +160,7 @@ void HuffmanDecode(HuffmanTree HT, char * chars, int n){
     char buf[50];      /*缓冲区*/
     FILE *fp;            /*文件指针*/
     int len;             /*行字符个数*/
-    if((fp = fopen("D:\\file\\b.txt","r")) == NULL)
+    if((fp = fopen("huffmanb.txt","r")) == NULL)
     {
         perror("fail to read");
         exit (1);
